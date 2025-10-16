@@ -45,6 +45,9 @@ else
     init_color='#0f56d9'
 fi
 
+
+#main yad
+
 color_picker_plus() {
 
 if [ -f $colorlist_file ]; then
@@ -55,9 +58,12 @@ if [ -f /tmp/ycp-list.txt ]; then
     init_color=$(cat /tmp/ycp-list.txt | sed -e 's/ //g')
 fi
 
-yad --plug=$$ --tabnum=1 --color --picker --init-color=$init_color > /tmp/ycp.txt | \
-yad --plug=$$ --tabnum=2 --list --no-headers --select-action='bash -c "echo %s > /tmp/ycp-list.txt"' --column=":IMG" --column="Saved Colors" ${color_list[@]} &
-
+yad --plug=$$ --tabnum=1 --color --picker \
+--init-color=$init_color > /tmp/ycp.txt | \
+yad --plug=$$ --tabnum=2 --list --no-headers \
+--text="<b>Saved Colors</b>" \
+--select-action='bash -c "echo %s > /tmp/ycp-list.txt"' \
+--column=":IMG" --column="Saved Colors" ${color_list[@]} &
 
 BTN_SAVELIST=$(gettext "Add") ; BTN_SAVELIST+='!list-add'
 BTN_REMOVELIST=$(gettext "Remove") ; BTN_REMOVELIST+='!list-remove'
@@ -119,6 +125,8 @@ case $ret in
 esac
 }
 
+
+#make loop
 
 export -f color_picker_plus cleanup_tempfiles
 
