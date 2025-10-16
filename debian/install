@@ -1,0 +1,4 @@
+yad-color-plus 	usr/bin
+yad-color-plus.desktop /usr/share/applications
+yad-color-plus.svg /usr/share/icons/hicolor/scalable
+color-template.svg /usr/share/yad-color-plus

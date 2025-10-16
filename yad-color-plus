@@ -1,0 +1,133 @@
+#!/bin/bash
+#yad-color-plus
+#Color picker with save list by Melber
+#License: GPL-3.0+
+#Version 25.10.01
+
+
+#export TEXTDOMAINDIR=/usr/share/locale
+#export TEXTDOMAIN="xxx"
+#source gettext.sh
+
+
+export TITLE="$(gettext 'Yad Color Plus')"
+export CLASS="yad-color-plus"
+export iconpath="/usr/share/icons/hicolor/scalable/apps/yad-color-plus.svg"
+
+#define paths
+colorlist_path=$HOME/.config/MX-Linux/yad-color-plus
+colorlist_file=$HOME/.config/MX-Linux/yad-color-plus/ycp-color-list.txt
+
+
+#first run
+
+if [ ! -d "$colorlist_path" ];then
+    mkdir -p colorlist_path
+fi
+
+if [ ! -f "$colorlist_path/color-template.svg" ];then
+    cp /usr/share/yad-color-plus/color-template.svg $colorlist_path/color-template.svg
+fi
+
+
+#clean up
+
+cleanup_tempfiles() {
+rm -f /tmp/ycp.txt /tmp/ycp-list.txt
+}
+
+
+#set up
+
+if [ -f /tmp/ycp.txt ]; then
+    init_color=$(cat /tmp/ycp.txt)
+else
+    init_color='#0f56d9'
+fi
+
+color_picker_plus() {
+
+if [ -f $colorlist_file ]; then
+    read -r -a color_list < $colorlist_file
+fi
+
+if [ -f /tmp/ycp-list.txt ]; then
+    init_color=$(cat /tmp/ycp-list.txt | sed -e 's/ //g')
+fi
+
+yad --plug=$$ --tabnum=1 --color --picker --init-color=$init_color > /tmp/ycp.txt | \
+yad --plug=$$ --tabnum=2 --list --no-headers --select-action='bash -c "echo %s > /tmp/ycp-list.txt"' --column=":IMG" --column="Saved Colors" ${color_list[@]} &
+
+
+BTN_SAVELIST=$(gettext "Add") ; BTN_SAVELIST+='!list-add'
+BTN_REMOVELIST=$(gettext "Remove") ; BTN_REMOVELIST+='!list-remove'
+BTN_LOADLIST=$(gettext "Load") ; BTN_LOADLIST+='!go-previous'
+BTN_COPYCLIPBOARD=$(gettext "Copy to Clipboard") ; BTN_COPYCLIPBOARD+='!edit-copy'
+
+yad --paned --key=$$ --orient=hor --splitter=420 \
+--title="$TITLE" --class="$CLASS" --window-icon="$iconpath" \
+--center --width=650 --height=400 --buttons-layout=edge \
+--button="${BTN_COPYCLIPBOARD}":4 --button="${BTN_LOADLIST}":10 --button="${BTN_SAVELIST}":6 --button="${BTN_REMOVELIST}":8 \
+>/dev/null
+
+ret=$?
+
+case $ret in
+    2 | 252 )
+        alldone="alldone"
+    ;;
+    
+    4 )
+        if [ -f /tmp/ycp-list.txt ]; then
+            init_color=$(cat /tmp/ycp-list.txt)
+            rm -f /tmp/ycp-list.txt
+        else
+            init_color=$(cat /tmp/ycp.txt)
+        fi
+        
+        echo $init_color | xclip -selection clipboard
+        alldone="nope"    
+    ;;
+    
+    6 )
+        init_color=$(cat /tmp/ycp.txt)  
+        cp $colorlist_path/color-template.svg $colorlist_path/$init_color.svg
+        sed -i "s/new_color/$init_color/" $colorlist_path/$init_color.svg
+        echo -n " $colorlist_path/$init_color.svg $init_color" >> $colorlist_file
+        alldone="nee"
+    ;;
+    
+    8 )
+        remove_color=$( cat /tmp/ycp-list.txt | sed -e 's/ //' )
+        
+        remove_image="$colorlist_path/$remove_color.svg"
+        remove_image=$(echo "$remove_image" | sed -e 's/[]$ /#.*[\^]/\\&/g' )
+
+        sed -i "s/$remove_image//" $colorlist_file
+        sed -i "s/$remove_color//" $colorlist_file
+        
+        rm -f /tmp/ycp-list.txt
+        
+        alldone="nee"
+    ;;
+    
+    10 )
+#        init_color=$(cat /tmp/ycp-list.txt)
+        alldone="nee"
+    ;;
+    
+esac
+}
+
+
+export -f color_picker_plus cleanup_tempfiles
+
+
+while [ "$alldone" != "alldone" ]; do
+
+    color_picker_plus
+
+done
+
+cleanup_tempfiles
+exit 0
