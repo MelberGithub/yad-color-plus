@@ -1,25 +1,13 @@
-Source: mx-conky-data
-Section: admin
+Source: yad-color-plus
+Section: x11
 Priority: optional
-Maintainer: Dolphin Oracle <dolphinoracle@gmail.com>
-Build-Depends: debhelper (>=9)
-Standards-Version: 3.9.5
-Homepage: https://github.com/MX-Linux/mx-conky-data
+Maintainer: Melber <melber.mx.linux@gmail.com>
+Build-Depends:  debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/MelberGithub/yad-color-plus
 
-Package: mx-conky-data
+Package: yad-color-plus
 Architecture: all
-Depends: mx-conky-data-themes, mx-conky-data-bin
-Description: meta package of conky themes for MX
- this package is a metapackage and is removable without losing themes or function
- this package brings in mx-conky-data-themes and mx-conky-data-bin
- 
-Package: mx-conky-data-themes
-Architecture: all
-Replaces: mx-conky-data
-Description: conky themes for MX Conky
- Various attractive conky themes that have been customized for MX Linux.
+Depends: yad
+Description: color picker with list
 
-Package: mx-conky-data-bin
-Architecture: all
-Description: launcher script for default mx conky file
- launcher script for default mx conky file

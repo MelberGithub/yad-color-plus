@@ -1,14 +1,12 @@
 #!/bin/bash
 #yad-color-plus
-#Color picker with save list by Melber
+#yad color picker with save list by Melber
 #License: GPL-3.0+
 #Version 25.10.01
-
 
 #export TEXTDOMAINDIR=/usr/share/locale
 #export TEXTDOMAIN="xxx"
 #source gettext.sh
-
 
 export TITLE="$(gettext 'Yad Color Plus')"
 export CLASS="yad-color-plus"
@@ -46,7 +44,16 @@ else
 fi
 
 
-#main yad
+#list management function
+
+cpp_list() {
+
+
+
+}
+
+
+#main function
 
 color_picker_plus() {
 
@@ -58,22 +65,25 @@ if [ -f /tmp/ycp-list.txt ]; then
     init_color=$(cat /tmp/ycp-list.txt | sed -e 's/ //g')
 fi
 
-yad --plug=$$ --tabnum=1 --color --picker \
---init-color=$init_color > /tmp/ycp.txt | \
-yad --plug=$$ --tabnum=2 --list --no-headers \
---text="<b>Saved Colors</b>" \
---select-action='bash -c "echo %s > /tmp/ycp-list.txt"' \
---column=":IMG" --column="Saved Colors" ${color_list[@]} &
+listtext=$(gettext "Saved Colors")
 
-BTN_SAVELIST=$(gettext "Add") ; BTN_SAVELIST+='!list-add'
+yad --plug=$$ --tabnum=1 --color --picker --init-color=$init_color \
+ > /tmp/ycp.txt | \
+yad --plug=$$ --tabnum=2 --list --no-headers \
+--text="<b>$listtext</b>" --text-align=center \
+--select-action='bash -c "echo %s > /tmp/ycp-list.txt"' \
+--column=":IMG" --column="Saved Colors" ${color_list[@]} >/dev/null &
+
+
+BTN_ADDLIST=$(gettext "Add") ; BTN_ADDLIST+='!list-add'
 BTN_REMOVELIST=$(gettext "Remove") ; BTN_REMOVELIST+='!list-remove'
 BTN_LOADLIST=$(gettext "Load") ; BTN_LOADLIST+='!go-previous'
 BTN_COPYCLIPBOARD=$(gettext "Copy to Clipboard") ; BTN_COPYCLIPBOARD+='!edit-copy'
 
 yad --paned --key=$$ --orient=hor --splitter=420 \
 --title="$TITLE" --class="$CLASS" --window-icon="$iconpath" \
---center --width=650 --height=400 --buttons-layout=edge \
---button="${BTN_COPYCLIPBOARD}":4 --button="${BTN_LOADLIST}":10 --button="${BTN_SAVELIST}":6 --button="${BTN_REMOVELIST}":8 \
+--center --width=650 --height=400 --buttons-layout=spread \
+--button="${BTN_COPYCLIPBOARD}":4 --button=yad-close:2 --button="${BTN_LOADLIST}":10 --button="${BTN_ADDLIST}":6 --button="${BTN_REMOVELIST}":8  \
 >/dev/null
 
 ret=$?
@@ -114,22 +124,21 @@ case $ret in
         
         rm -f /tmp/ycp-list.txt
         
-        alldone="nee"
+        alldone="nah"
     ;;
     
     10 )
-#        init_color=$(cat /tmp/ycp-list.txt)
-        alldone="nee"
+        alldone="no"
     ;;
     
 esac
 }
 
 
-#make loop
-
 export -f color_picker_plus cleanup_tempfiles
 
+
+#loop main function
 
 while [ "$alldone" != "alldone" ]; do
 
@@ -138,4 +147,5 @@ while [ "$alldone" != "alldone" ]; do
 done
 
 cleanup_tempfiles
+
 exit 0
