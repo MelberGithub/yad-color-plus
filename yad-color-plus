@@ -20,7 +20,7 @@ colorlist_file=$HOME/.config/MX-Linux/yad-color-plus/ycp-color-list.txt
 #first run
 
 if [ ! -d "$colorlist_path" ];then
-    mkdir -p colorlist_path
+    mkdir -p $colorlist_path
 fi
 
 if [ ! -f "$colorlist_path/color-template.svg" ];then
@@ -42,15 +42,6 @@ if [ -f /tmp/ycp.txt ]; then
 else
     init_color='#0f56d9'
 fi
-
-
-#list management function
-
-cpp_list() {
-
-
-
-}
 
 
 #main function
